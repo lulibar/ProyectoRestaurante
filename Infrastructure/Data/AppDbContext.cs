@@ -70,22 +70,22 @@ namespace Infrastructure.Data
                 entity.Property(s => s.DeliveryTo).IsRequired().HasMaxLength(255);
                 entity.Property(s => s.Price).IsRequired().HasPrecision(18, 2);
                 entity.Property(s => s.CreateDate).IsRequired();
-                entity.Property(s => s.Price);
+                entity.Property(s => s.UpdateDate);
 
                 // Relationship with DeliveryType
-                entity.HasOne(e => e.DeliveryTypeRef)
+                entity.HasOne(e => e.DeliveryType)
                       .WithMany(d => d.Orders)
-                      .HasForeignKey(e => e.DeliveryType)
+                      .HasForeignKey(e => e.DeliveryTypeId)
                       .OnDelete(DeleteBehavior.Restrict);
                 // Relationship with Status
-                entity.HasOne(e => e.OverallStatusRef)
+                entity.HasOne(e => e.OverallStatus)
                       .WithMany(s => s.Orders)
-                      .HasForeignKey(e => e.OverallStatus)
+                      .HasForeignKey(e => e.OverallStatusId)
                       .OnDelete(DeleteBehavior.Restrict);
                 // Relationship with OrderItems
                 entity.HasMany(e => e.OrderItems)
-                      .WithOne(oi => oi.OrderRef)
-                      .HasForeignKey(oi => oi.Order)
+                      .WithOne(oi => oi.Order)
+                      .HasForeignKey(oi => oi.OrderId)
                       .OnDelete(DeleteBehavior.Cascade);
 
             });
@@ -99,9 +99,9 @@ namespace Infrastructure.Data
 
                 //relacion status
 
-                entity.HasOne(e => e.StatusRef)
+                entity.HasOne(e => e.Status)
                       .WithMany(s => s.OrderItems)
-                      .HasForeignKey(e => e.Status)
+                      .HasForeignKey(e => e.StatusId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
 

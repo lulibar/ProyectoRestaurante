@@ -10,9 +10,9 @@ namespace Domain.Entities
     {
         public long OrderId { get; set; }
 
-        public string DeliveryTo { get; set; }
+        public string? DeliveryTo { get; set; }
 
-        public string Notes { get; set; }
+        public string? Notes { get; set; }
 
         public decimal Price { get; set; }
 
@@ -21,13 +21,12 @@ namespace Domain.Entities
 
         public ICollection<OrderItem> OrderItems { get; set; }
         
-        public int OverallStatus { get; set; }
-        public Status OverallStatusRef { get; set; }
+        public int OverallStatusId { get; set; }
+        public Status OverallStatus { get; set; }
 
-        public int DeliveryType { get; set; }
-        public DeliveryType DeliveryTypeRef { get; set; }
+        public int DeliveryTypeId { get; set; }
+        public DeliveryType DeliveryType { get; set; }
 
-    
-    
     }
 }
+ 

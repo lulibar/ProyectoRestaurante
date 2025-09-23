@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Interfaces.ICategory
+namespace Application.Interfaces.IStatus.IStatusServices
 {
-    public interface ICategoryExists
+    public interface IGetStatusByIdService
     {
-        Task<bool> CategoryExist(int id);
     }
 }

@@ -81,16 +81,16 @@ namespace ProyectoRestaurante.Controllers
                
             }
 
-            //var categoryExists = await _categoryExists.CategoryExists(dishRequest.Category);
-            //if (!categoryExists)
-            //{
-            //    return BadRequest(new ApiError($"Category with ID {dishRequest.Category} not found."));
-            //}
-
-            if (dishRequest.Category == 0 || dishRequest.Category >= 11)
+            var categoryExists = await _categoryExists.CategoryExist(dishRequest.Category);
+            if (!categoryExists)
             {
-                return BadRequest(new ApiError("No se ingreso una categoria valida"));
+                return BadRequest(new ApiError($"Category with ID {dishRequest.Category} not found."));
             }
+
+            //if (dishRequest.Category == 0 || dishRequest.Category >= 11)
+            //{
+            //    return BadRequest(new ApiError("No se ingreso una categoria valida"));
+            //}
 
             var createdDish = await _createDishService.CreateDish(dishRequest);
 

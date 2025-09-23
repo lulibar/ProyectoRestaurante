@@ -75,6 +75,12 @@ namespace Infrastructure.Querys
             return await _context.Dishes.FindAsync(id).AsTask();
         }
 
+        public async Task<List<Dish>> GetDishesByIds(IEnumerable<Guid> ids)
+        {
+            return await _context.Dishes
+            .Where(dish => ids.Contains(dish.DishId))
+            .ToListAsync(); 
+        }
     }
     
 }

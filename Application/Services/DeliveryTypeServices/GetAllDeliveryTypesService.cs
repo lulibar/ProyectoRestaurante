@@ -1,0 +1,16 @@
+﻿using Application.Interfaces.IDeliveryType.IDeliveryTypeServices;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Application.Services.DeliveryTypeServices
+{
+    public class GetAllDeliveryTypesService : IGetAllDeliveryTypesService
+    {
+        public GetAllDeliveryTypesService()
+        {
+        }
+    }
+}

@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Interfaces.ICategory
+namespace Application.Interfaces.IDeliveryType
 {
-    public interface ICategoryExists
+    public interface IDeliveryExists
     {
-        Task<bool> CategoryExist(int id);
+        Task<bool> DeliveryExist(int id);
     }
 }

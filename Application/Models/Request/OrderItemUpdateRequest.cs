@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Interfaces.ICategory
+namespace Application.Models.Request
 {
-    public interface ICategoryExists
+    public class OrderItemUpdateRequest
     {
-        Task<bool> CategoryExist(int id);
+        public int Status { get; set; }
     }
 }

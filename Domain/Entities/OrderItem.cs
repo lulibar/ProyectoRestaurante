@@ -18,11 +18,11 @@ namespace Domain.Entities
         public Guid DishId { get; set; }
         public Dish Dish { get; set; }
 
-        public Order OrderRef { get; set; }
-        public long Order { get; set; }
+        public Order Order { get; set; }
+        public long OrderId { get; set; }
 
-        public int Status { get; set; }
-        public Status StatusRef { get; set; }
+        public int StatusId { get; set; }
+        public Status Status { get; set; }
 
     }
 }

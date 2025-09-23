@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace Application.Services.CategoryServices
 {
-    public class CategoryExistUseCase : ICategoryExists
+    public class CategoryExists : ICategoryExists
     {
         private readonly ICategoryQuery _categoryQuery;
-        public CategoryExistUseCase(ICategoryQuery categoryQuery)
+        public CategoryExists(ICategoryQuery categoryQuery)
         {
             _categoryQuery = categoryQuery;
         }
-        public async Task<bool> CategoryExists(int id)
+        public async Task<bool> CategoryExist(int id)
         {
             var category = await _categoryQuery.CategoryExistAsync(id);
             return category;

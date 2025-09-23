@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Interfaces.ICategory
+namespace Application.Interfaces.IOrder.IOrderServices
 {
-    public interface ICategoryExists
+    public interface IUpdateOrderService
     {
-        Task<bool> CategoryExist(int id);
     }
 }

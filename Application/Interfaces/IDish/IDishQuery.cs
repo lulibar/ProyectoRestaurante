@@ -15,6 +15,7 @@ namespace Application.Interfaces.IDish
         Task<Dish?> GetDishById(Guid id);
         Task<IEnumerable<Dish>> GetAllAsync(string? name = null, int? category = null, bool? onlyActive = null, SortOrder? priceOrder = SortOrder.ASC);
         Task<bool> DishExists(string name, Guid? idToExclude = null);
+        Task<List<Dish>> GetDishesByIds(IEnumerable<Guid> ids);
 
     }
 }

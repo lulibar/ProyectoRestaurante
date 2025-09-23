@@ -1,9 +1,16 @@
 using Application.Interfaces.ICategory;
+using Application.Interfaces.ICategory.ICategoryServices;
+using Application.Interfaces.IDeliveryType;
 using Application.Interfaces.IDish;
 using Application.Interfaces.IDish.IDishServices;
+using Application.Interfaces.IOrder;
+using Application.Interfaces.IOrder.IOrderServices;
+using Application.Interfaces.IOrderItem;
 using Application.Services;
 using Application.Services.CategoryServices;
+using Application.Services.DeliveryTypeServices;
 using Application.Services.DishServices;
+using Application.Services.OrderServices;
 using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
 using Infrastructure.Command;
@@ -32,11 +39,25 @@ builder.Services.AddScoped<IGetDishByIdService, GetDishByIdService>();
 builder.Services.AddScoped<ISearchAsyncService, SearchAsyncService>();
 builder.Services.AddScoped<IUpdateDishService, UpdateDishService>();
 
-//builder Query
+//builder Category
 builder.Services.AddScoped<ICategoryCommand, CategoryCommand>();
 builder.Services.AddScoped<ICategoryQuery, CategoryQuery>();
-builder.Services.AddScoped<ICategoryExists, CategoryExistUseCase>();
+builder.Services.AddScoped<ICategoryExists, CategoryExists>();
 
+//builder Order
+builder.Services.AddScoped<IOrderCommand, OrderCommand>();
+builder.Services.AddScoped<IOrderQuery, OrderQuery>();
+builder.Services.AddScoped<ICreateOrderService, CreateOrderService>();
+builder.Services.AddScoped<IDeliveryExists, DeliveryExists>();
+
+//builder DeliveryType
+builder.Services.AddScoped<IDeliveryTypeQuery, DeliveryTypeQuery>();
+
+//builder OrderItem
+builder.Services.AddScoped<IOrderItemCommand, OrderItemCommand>();
+
+
+//
 builder.Services.AddControllers();
 
 
