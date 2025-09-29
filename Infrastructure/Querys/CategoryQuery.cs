@@ -26,7 +26,9 @@ namespace Infrastructure.Querys
 
         public async Task<List<Category>> GetAllCategories()
         {
-            return await _context.Categories.ToListAsync();
+            return await _context.Categories
+                             .OrderBy(c => c.Order)
+                             .ToListAsync();
         }
 
         public async Task<bool> CategoryExistAsync(int id)

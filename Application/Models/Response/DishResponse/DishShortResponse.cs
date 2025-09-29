@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Models.Response
+namespace Application.Models.Response.DishResponse
 {
     public class DishShortResponse
     {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        public double Price { get; set; }
+        public Guid id { get; set; }
+        public string name { get; set; }
+        public string image { get; set; }
     }
 }

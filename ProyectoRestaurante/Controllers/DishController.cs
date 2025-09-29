@@ -1,15 +1,18 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Application.Enums;
+using Application.Exceptions;
+using Application.Interfaces.ICategory;
 using Application.Interfaces.IDish;
+using Application.Interfaces.IDish.IDishServices;
 using Application.Models.Request;
 using Application.Models.Response;
-using Application.Enums;
-using Swashbuckle.AspNetCore.Annotations;
-using Microsoft.IdentityModel.Tokens;
-using Application.Interfaces.IDish.IDishServices;
+using Application.Models.Response.DishResponse;
+using Application.Services.DishServices;
 using Asp.Versioning;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel.DataAnnotations;
-using Application.Interfaces.ICategory;
 
 
 namespace ProyectoRestaurante.Controllers
@@ -24,14 +27,16 @@ namespace ProyectoRestaurante.Controllers
         private readonly ISearchAsyncService _searchAsyncService;
         private readonly IUpdateDishService _updateDishService;
         private readonly ICategoryExists _categoryExists;
+        private readonly IDeleteDishService _deleteDishService;
 
 
-        public DishController(ICreateDishService createDishService, ISearchAsyncService searchAsyncService, IUpdateDishService updateDishService, ICategoryExists categoryExists)
+        public DishController(ICreateDishService createDishService, ISearchAsyncService searchAsyncService, IUpdateDishService updateDishService, ICategoryExists categoryExists, IDeleteDishService deleteDishService)
         {
             _createDishService = createDishService;
             _searchAsyncService = searchAsyncService;
             _updateDishService = updateDishService;
             _categoryExists = categoryExists;
+            _deleteDishService = deleteDishService;
         }
 
         // POST
@@ -207,6 +212,26 @@ namespace ProyectoRestaurante.Controllers
             return Ok(result.UpdatedDish);
         }
 
+        [HttpDelete("{id:guid}")]
+        [ProducesResponseType(typeof(DishResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> DeleteDish(Guid id)
+        {
+            try
+            {
+                var result = await _deleteDishService.DeleteDish(id);
+                return Ok(result);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (ConflictException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+        }
 
 
 

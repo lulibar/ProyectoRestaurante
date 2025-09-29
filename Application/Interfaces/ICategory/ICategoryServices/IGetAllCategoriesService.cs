@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Application.Models.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ namespace Application.Interfaces.ICategory.ICategoryServices
 {
     public interface IGetAllCategoriesService
     {
+        Task<List<CategoryResponse>> GetAllCategories();
 
     }
 }

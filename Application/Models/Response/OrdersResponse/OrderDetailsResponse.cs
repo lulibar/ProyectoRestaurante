@@ -16,7 +16,7 @@ namespace Application.Models.Response.OrdersResponse
         public GenericResponse status { get; set; }
         public GenericResponse deliveryType { get; set; }
 
-        public List<OrderItemResponse>? Items { get; set; }
+        public List<OrderItemResponse>? items { get; set; }
 
         public DateTime createdAt { get; set; }
         public DateTime? updatedAt { get; set; }

@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Application.Interfaces.IDish.IDishServices
 {
-    public interface IGetDishByIdService
+    public interface IDeleteDishService
     {
-        Task<DishResponse?> GetDishById(Guid id);
+        Task<DishResponse> DeleteDish(Guid id);
     }
 }

@@ -43,6 +43,13 @@ namespace Application.Services.OrderServices
                 return null;
             }
 
+            var requestedDishIds = orderRequest.items.Select(item => item.id).Distinct();
+            var existingDishes = await _dishQuery.GetDishesByIds(requestedDishIds);
+            if (existingDishes.Count != requestedDishIds.Count())
+            {
+                return null; 
+            }
+
             var order = new Order
             {
                 DeliveryTypeId = orderRequest.delivery.id,
@@ -53,9 +60,9 @@ namespace Application.Services.OrderServices
                 UpdateDate = DateTime.Now,
                 CreateDate = DateTime.Now
             };
-            //guardar order
+
+
             await _orderCommand.InsertOrder(order);
-            //crear orderItem
             var listItems = orderRequest.items;
             var listorderItems = listItems.Select(item => new OrderItem
             {
@@ -65,11 +72,11 @@ namespace Application.Services.OrderServices
                 StatusId = 1,
                 OrderId = order.OrderId,
             }).ToList();
+
             order.Price = await CalculateTotalPrice(listItems);
             order.OverallStatus = null;
             await _orderItemCommand.InsertOrderItemRange(listorderItems);
             await _orderCommand.UpdateOrder(order);
-            //relacionar orderItem con dish
 
             return new OrderCreateResponse
             {
@@ -79,7 +86,7 @@ namespace Application.Services.OrderServices
             };
         }
 
-        private async Task<decimal> CalculateTotalPrice(List<Items> orderItems)
+        public async Task<decimal> CalculateTotalPrice(List<Items> orderItems)
         {
             decimal total = 0;
             foreach (var item in orderItems)

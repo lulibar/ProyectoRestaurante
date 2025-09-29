@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Application.Models.Response.OrdersResponse;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,5 +10,6 @@ namespace Application.Interfaces.IOrder.IOrderServices
     
     public interface IGetOrderByIdService
     {
+        Task<OrderDetailsResponse?> GetOrderById(long orderId);
     }
 }

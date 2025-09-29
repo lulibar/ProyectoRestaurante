@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services.OrderItemServices
 {
-    public class GetOrderItemByIdService : IGetOrderItemByIdService
+    public class GetOrderItemByIdService : Interfaces.IOrderItem.IOrderItemService.GetOrderItemByIdService
     {
     }
 }

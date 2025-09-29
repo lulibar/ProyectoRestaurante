@@ -8,6 +8,6 @@ namespace Application.Models.Request.OrdersRequest
 {
     public class OrderUpdateRequest
     {
-        public List<Items>? Items { get; set; }
+        public List<Items>? items { get; set; }
     }
 }

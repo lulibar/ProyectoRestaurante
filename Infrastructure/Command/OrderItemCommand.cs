@@ -33,6 +33,18 @@ namespace Infrastructure.Command
             _context.OrderItems.Remove(orderItem);
             await _context.SaveChangesAsync();
         }
+
+        public async Task RemoveOrderItems(IEnumerable<OrderItem> items)
+        {
+            if (items == null || !items.Any())
+            {
+                return;
+            }
+            _context.OrderItems.RemoveRange(items);
+            await _context.SaveChangesAsync();
+
+        }
+
         public async Task UpdateOrderItem(OrderItem orderItem)
         {
             _context.OrderItems.Update(orderItem);

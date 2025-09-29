@@ -8,6 +8,6 @@ namespace Application.Models.Request
 {
     public class OrderItemUpdateRequest
     {
-        public int Status { get; set; }
+        public int status { get; set; }
     }
 }

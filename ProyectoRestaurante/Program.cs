@@ -1,16 +1,22 @@
 using Application.Interfaces.ICategory;
 using Application.Interfaces.ICategory.ICategoryServices;
 using Application.Interfaces.IDeliveryType;
+using Application.Interfaces.IDeliveryType.IDeliveryTypeServices;
 using Application.Interfaces.IDish;
 using Application.Interfaces.IDish.IDishServices;
 using Application.Interfaces.IOrder;
+using Application.Interfaces.IOrder.IOrderService;
 using Application.Interfaces.IOrder.IOrderServices;
 using Application.Interfaces.IOrderItem;
+using Application.Interfaces.IOrderItem.IOrderItemService;
+using Application.Interfaces.IStatus;
+using Application.Interfaces.IStatus.IStatusServices;
 using Application.Services;
 using Application.Services.CategoryServices;
 using Application.Services.DeliveryTypeServices;
 using Application.Services.DishServices;
 using Application.Services.OrderServices;
+using Application.Services.StatusServices;
 using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
 using Infrastructure.Command;
@@ -38,24 +44,36 @@ builder.Services.AddScoped<IGetAllDishesAsyncService, GetAllDishesAsyncService>(
 builder.Services.AddScoped<IGetDishByIdService, GetDishByIdService>();
 builder.Services.AddScoped<ISearchAsyncService, SearchAsyncService>();
 builder.Services.AddScoped<IUpdateDishService, UpdateDishService>();
+builder.Services.AddScoped<IDeleteDishService, DeleteDishService>();
 
 //builder Category
 builder.Services.AddScoped<ICategoryCommand, CategoryCommand>();
 builder.Services.AddScoped<ICategoryQuery, CategoryQuery>();
 builder.Services.AddScoped<ICategoryExists, CategoryExists>();
+builder.Services.AddScoped<IGetAllCategoriesService, GetAllCategoriesService>();
 
 //builder Order
 builder.Services.AddScoped<IOrderCommand, OrderCommand>();
 builder.Services.AddScoped<IOrderQuery, OrderQuery>();
 builder.Services.AddScoped<ICreateOrderService, CreateOrderService>();
 builder.Services.AddScoped<IDeliveryExists, DeliveryExists>();
+builder.Services.AddScoped<IGetOrderByDateStatus, GetOrderByDateStatusService>();
+builder.Services.AddScoped<IUpdateOrderService, UpdateOrderService>();
+builder.Services.AddScoped<IGetOrderByIdService, GetOrderByIdService>();
+builder.Services.AddScoped<IUpdateOrderItemStatusService, UpdateOrderItemStatusService>();
+
 
 //builder DeliveryType
 builder.Services.AddScoped<IDeliveryTypeQuery, DeliveryTypeQuery>();
+builder.Services.AddScoped<IGetAllDeliveryTypesService, GetAllDeliveryTypesService>();
 
 //builder OrderItem
 builder.Services.AddScoped<IOrderItemCommand, OrderItemCommand>();
+builder.Services.AddScoped<IOrderItemQuery, OrderItemQuery>();
 
+//builder Status
+builder.Services.AddScoped<IGetAllStatusesService, GetAllStatusesService>();
+builder.Services.AddScoped<IStatusQuery, StatusQuery>();
 
 //
 builder.Services.AddControllers();

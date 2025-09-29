@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Application.Interfaces.IOrderItem.IOrderItemService
 {
-    public interface IGetOrderItemByIdService
+    public interface GetOrderItemByIdService
     {
     }
 }

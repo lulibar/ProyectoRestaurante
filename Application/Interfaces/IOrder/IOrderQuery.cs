@@ -11,5 +11,10 @@ namespace Application.Interfaces.IOrder
     {
         Task<List<Order>> GetAllOrders();
         Task<Order?> GetOrderById(long id);
+        Task<IEnumerable<Order>> GetAllByFilters(DateTime? from, DateTime? to, int? statusId);
+        Task<Order?> GetOrderByIdDetails(long id);
+        Task<bool> IsDishInActiveOrder(Guid dishId);
+
+
     }
 }
