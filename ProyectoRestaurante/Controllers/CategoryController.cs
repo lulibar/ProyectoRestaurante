@@ -1,11 +1,13 @@
 ﻿using Application.Interfaces.ICategory.ICategoryServices;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ProyectoRestaurante.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
     public class CategoryController : ControllerBase
     {
         private readonly IGetAllCategoriesService _getAllCategoriesService;

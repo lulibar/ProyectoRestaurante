@@ -1,4 +1,5 @@
-﻿using Application.Interfaces.IOrder;
+﻿using Application.Exceptions;
+using Application.Interfaces.IOrder;
 using Application.Interfaces.IOrder.IOrderService;
 using Application.Models.Response;
 using Application.Models.Response.DishResponse;
@@ -22,6 +23,11 @@ namespace Application.Services.OrderServices
 
         public async Task<IEnumerable<OrderDetailsResponse?>> GetOrderDateStatus(DateTime? from, DateTime? to, int? statusid)
         {
+            if (from.HasValue && to.HasValue && from.Value > to.Value)
+            {
+                throw new BadRequestException("Rango de fechas invalido.");
+            }
+
             var orders = await _orderQuery.GetAllByFilters(from, to, statusid);
             var responseOrders = orders.Select(o => new OrderDetailsResponse
             {

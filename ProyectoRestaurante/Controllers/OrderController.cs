@@ -1,4 +1,5 @@
-﻿using Application.Interfaces.ICategory;
+﻿using Application.Exceptions;
+using Application.Interfaces.ICategory;
 using Application.Interfaces.IDeliveryType;
 using Application.Interfaces.IDish;
 using Application.Interfaces.IOrder.IOrderService;
@@ -6,7 +7,8 @@ using Application.Interfaces.IOrder.IOrderServices;
 using Application.Models.Request;
 using Application.Models.Request.OrdersRequest;
 using Application.Models.Response; 
-using Application.Models.Response.OrdersResponse; 
+using Application.Models.Response.OrdersResponse;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Swashbuckle.AspNetCore.Annotations;
@@ -15,8 +17,9 @@ using System.Runtime.ConstrainedExecution;
 
 namespace ProyectoRestaurante.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/v{version:apiVersion}/[controller]")] 
+    [ApiVersion("1.0")]
     public class OrderController : ControllerBase
     {
         private readonly ICreateOrderService _createOrderService;
@@ -69,41 +72,21 @@ namespace ProyectoRestaurante.Controllers
 
         public async Task<IActionResult> CreateOrder([SwaggerRequestBody(Description = "Datos de la nueva orden", Required = true)][FromBody] OrderRequest orderRequest)
         {
-            if (orderRequest?.items == null || !orderRequest.items.Any())
+            try
             {
-                return BadRequest(new ApiError("La orden debe contener al menos un ítem."));
+                var createdOrder = await _createOrderService.CreateOrder(orderRequest);
+
+                return CreatedAtAction("GetOrderById", new { id = createdOrder.orderNumber }, createdOrder);
             }
-
-
-            if (orderRequest.items.Any(item => item.quantity <= 0))
+            catch (BadRequestException ex)
             {
-                return BadRequest(new ApiError("La cantidad de cada plato debe ser mayor a 0."));
+                return BadRequest(new ApiError(ex.Message));
             }
-
-            var requestedDishIds = orderRequest.items.Select(item => item.id).Distinct();
-
-            var existingDishes = await _dishQuery.GetDishesByIds(requestedDishIds);
-
-            if (existingDishes.Count != requestedDishIds.Count())
+            catch (ConflictException ex)
             {
-                return BadRequest(new ApiError("Uno o más platos especificados no existen o no están disponibles."));
+                return Conflict(new ApiError(ex.Message));
             }
-            var createdOrder = await _createOrderService.CreateOrder(orderRequest);
-
-            var deliveryExists = await _deliveryExists.DeliveryExist(orderRequest.delivery.id);
-            if (!deliveryExists)
-            {
-                return BadRequest(new ApiError($"Category with ID {orderRequest.delivery.id} not found."));
-            }
-
-            if (createdOrder == null)
-            {
-                return Conflict(new ApiError("No se pudo crear la orden debido a un conflicto."));
-            }
-
-            return CreatedAtAction("GetOrderById", new { id = createdOrder.orderNumber }, createdOrder);
             
-
         }
 
         // GET
@@ -137,20 +120,16 @@ namespace ProyectoRestaurante.Controllers
             try
             {
                 var result = await _getOrderByDateStatus.GetOrderDateStatus(from, to, statusId);
-                if (result == null || !result.Any())
-                {
-                    return NotFound(new ApiError("No orders found with the specified filters."));
-                }
                 return Ok(result);
             }
-            catch (Exception ex)
+            catch (BadRequestException ex)
             {
-                Console.WriteLine(ex.Message);
-                return BadRequest(new ApiError("An error occurred while processing the request."));
+                return BadRequest(new ApiError(ex.Message));
             }
+            
         }
 
-        // PUT
+        // PATCH
         /// <summary>
         /// Actualizar orden existente
         /// </summary>
@@ -167,7 +146,7 @@ namespace ProyectoRestaurante.Controllers
         /// - Modificar cantidades antes de que comience la preparación
         /// - Cambiar notas especiales de los platos
         /// </remarks>
-        [HttpPut("{id}")]
+        [HttpPatch("{id}")]
         [SwaggerOperation(
             Summary = "Actualizar orden existente",
             Description = "Actualiza los items de una orden existente."
@@ -183,9 +162,17 @@ namespace ProyectoRestaurante.Controllers
                 var response = await _updateOrderService.UpdateOrder(id, updateRequest);
                 return Ok(response);
             }
-            catch (Exception ex)
+            catch (NotFoundException ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return NotFound(new ApiError(ex.Message));
+            }
+            catch (BadRequestException ex)
+            {
+                return BadRequest(new ApiError(ex.Message));
+            }
+            catch (ConflictException ex)
+            {
+                return Conflict(new ApiError(ex.Message));
             }
         }
 
@@ -219,14 +206,15 @@ namespace ProyectoRestaurante.Controllers
 
         public async Task<IActionResult> GetOrderById(long id)
         {
-            var result = await _getOrderByIdService.GetOrderById(id);
-
-            if (result == null)
+            try
             {
-                return NotFound(new ApiError($"No se encontró la orden con el número {id}."));
+                var result = await _getOrderByIdService.GetOrderById(id);
+                return Ok(result);
             }
-
-            return Ok(result);
+            catch (NotFoundException ex)
+            {
+                return NotFound(new ApiError(ex.Message));
+            }
         }
 
         // PATCH
@@ -262,14 +250,23 @@ namespace ProyectoRestaurante.Controllers
         [ProducesResponseType(typeof(ApiError), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateOrderItemStatus(long id, long itemId, [FromBody] OrderItemUpdateRequest request)
         {
-            var result = await _updateOrderItemStatusService.UpdateOrderItemStatus(id, itemId, request);
-
-            if (result == null)
+            try
             {
-                return NotFound(new ApiError($"No se encontró el item {itemId} en la orden {id}, o la transición de estado no es válida."));
+                var result = await _updateOrderItemStatusService.UpdateOrderItemStatus(id, itemId, request);
+                return Ok(result);
             }
-
-            return Ok(result);
+            catch (NotFoundException ex)
+            {
+                return NotFound(new ApiError(ex.Message));
+            }
+            catch (BadRequestException ex)
+            {
+                return BadRequest(new ApiError(ex.Message));
+            }
+            catch (ConflictException ex)
+            {
+                return Conflict(new ApiError(ex.Message));
+            }
         }
     }
 }

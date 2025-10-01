@@ -1,11 +1,12 @@
-﻿using Application.Interfaces.IDish;
+﻿using Application.Enums;
+using Application.Exceptions;
+using Application.Interfaces.IDish;
 using Application.Interfaces.IOrder;
 using Application.Interfaces.IOrder.IOrderServices;
 using Application.Interfaces.IOrderItem;
 using Application.Models.Request.OrdersRequest;
 using Application.Models.Response.OrdersResponse;
 using Domain.Entities;
-using Application.Enums;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -30,27 +31,24 @@ namespace Application.Services.OrderServices
 
         public async Task<OrderUpdateResponse> UpdateOrder(long orderId, OrderUpdateRequest updateRequest)
         {
+            if (updateRequest?.items == null || !updateRequest.items.Any())
+                throw new BadRequestException("La solicitud para agregar ítems no puede estar vacía.");
+            if (updateRequest.items.Any(item => item.quantity <= 0))
+                throw new BadRequestException("La cantidad de cada plato debe ser mayor a 0.");
+
             var order = await _orderQuery.GetOrderById(orderId);
             if (order == null)
-            {
-                throw new ApplicationException("Orden no encontrada.");
-            }
+                throw new NotFoundException($"Orden con ID {orderId} no encontrada.");
 
             if (order.OverallStatusId >= (int)OrderStatus.InProgress)
-            {
-                
-                return null;
-            }
+                throw new ConflictException("No se puede modificar una orden que ya está en preparación o finalizada.");
 
-            var requestedDishId = updateRequest.items.Select(item => item.id).Distinct();
-            var existingDishes = await _dishQuery.GetDishesByIds(requestedDishId);
+            var requestedDishIds = updateRequest.items.Select(item => item.id).Distinct();
+            var existingDishes = await _dishQuery.GetDishesByIds(requestedDishIds);
 
-            if (existingDishes.Count != requestedDishId.Count())
-            {
-                return null;
-            }
+            if (existingDishes.Count != requestedDishIds.Count())
+                throw new BadRequestException("El plato especificado no está disponible.");
 
-            //await _orderItemCommand.RemoveOrderItems(order.OrderItems);
 
             var newOrderItems = updateRequest.items.Select(item => new OrderItem
             {
@@ -58,7 +56,7 @@ namespace Application.Services.OrderServices
                 DishId = item.id,
                 Quantity = item.quantity,
                 Notes = item.notes,
-                StatusId = 1 
+                StatusId = 1
             }).ToList();
 
             await _orderItemCommand.InsertOrderItemRange(newOrderItems);

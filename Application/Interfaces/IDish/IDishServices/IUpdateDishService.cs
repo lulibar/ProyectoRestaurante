@@ -1,4 +1,4 @@
-﻿using Application.Models.Request;
+﻿using Application.Models.Request.DishRequest;
 using Application.Models.Response.DishResponse;
 using System;
 using System.Collections.Generic;
@@ -10,6 +10,6 @@ namespace Application.Interfaces.IDish.IDishServices
 {
     public interface IUpdateDishService
     {
-        Task<UpdateDishResult> UpdateDish(Guid id, DishUpdateRequest DishUpdateRequest);
+        Task<DishResponse> UpdateDish(Guid id, DishUpdateRequest DishUpdateRequest);
     }
 }

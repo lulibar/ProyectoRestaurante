@@ -1,4 +1,5 @@
-﻿using Application.Interfaces.ICategory;
+﻿using Application.Exceptions;
+using Application.Interfaces.ICategory;
 using Application.Interfaces.ICategory.ICategoryServices;
 using Application.Interfaces.IDeliveryType;
 using Application.Interfaces.IDish;
@@ -37,25 +38,42 @@ namespace Application.Services.OrderServices
 
         public async Task<OrderCreateResponse?> CreateOrder(OrderRequest orderRequest)
         {
-            var deliveryType= await _deliveryTypeQuery.GetDeliveryTypeById(orderRequest.delivery.id);
-            if (deliveryType == null)
+            if (orderRequest?.items == null || !orderRequest.items.Any())
             {
-                return null;
+                throw new BadRequestException("La orden debe contener al menos un ítem.");
+            }
+
+            if (orderRequest.items.Any(item => item.quantity <= 0)) 
+            {
+                throw new BadRequestException("La cantidad de cada plato debe ser mayor a 0."); 
+            }
+                
+
+            var deliveryType = await _deliveryTypeQuery.GetDeliveryTypeById(orderRequest.delivery.id);
+            
+            if (deliveryType == null) 
+            {                
+                throw new BadRequestException($"El tipo de entrega con ID {orderRequest.delivery.id} no existe.");
+
             }
 
             var requestedDishIds = orderRequest.items.Select(item => item.id).Distinct();
+
             var existingDishes = await _dishQuery.GetDishesByIds(requestedDishIds);
+
             if (existingDishes.Count != requestedDishIds.Count())
             {
-                return null; 
+                throw new BadRequestException("Uno o más platos especificados no existen o no están disponibles.");
             }
+            
+            decimal totalPrice = CalculateTotalPrice(orderRequest.items, existingDishes);
 
             var order = new Order
             {
                 DeliveryTypeId = orderRequest.delivery.id,
                 DeliveryTo = orderRequest.delivery.to,
-                Price = 0,
-                OverallStatusId = 1,
+                Price = totalPrice, 
+                OverallStatusId = 1, 
                 Notes = orderRequest.notes,
                 UpdateDate = DateTime.Now,
                 CreateDate = DateTime.Now
@@ -63,6 +81,7 @@ namespace Application.Services.OrderServices
 
 
             await _orderCommand.InsertOrder(order);
+
             var listItems = orderRequest.items;
             var listorderItems = listItems.Select(item => new OrderItem
             {
@@ -73,10 +92,8 @@ namespace Application.Services.OrderServices
                 OrderId = order.OrderId,
             }).ToList();
 
-            order.Price = await CalculateTotalPrice(listItems);
-            order.OverallStatus = null;
             await _orderItemCommand.InsertOrderItemRange(listorderItems);
-            await _orderCommand.UpdateOrder(order);
+
 
             return new OrderCreateResponse
             {
@@ -86,15 +103,20 @@ namespace Application.Services.OrderServices
             };
         }
 
-        public async Task<decimal> CalculateTotalPrice(List<Items> orderItems)
+        decimal CalculateTotalPrice(List<Items> orderItems, List<Dish> dishes)
         {
             decimal total = 0;
+            var dishPriceMap = dishes.ToDictionary(d => d.DishId, d => d.Price);
+
             foreach (var item in orderItems)
             {
-                var dish = await _dishQuery.GetDishById(item.id);
-                total += dish.Price * item.quantity;
+                if (dishPriceMap.TryGetValue(item.id, out var price))
+                {
+                    total += price * item.quantity;
+                }
             }
             return total;
         }
     }
 }
+

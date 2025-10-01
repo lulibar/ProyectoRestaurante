@@ -1,4 +1,5 @@
-﻿using Application.Interfaces.IOrder;
+﻿using Application.Exceptions;
+using Application.Interfaces.IOrder;
 using Application.Interfaces.IOrder.IOrderServices;
 using Application.Models.Response;
 using Application.Models.Response.DishResponse;
@@ -24,8 +25,9 @@ namespace Application.Services.OrderServices
             var order = await _orderQuery.GetOrderByIdDetails(orderId);
             if (order == null)
             {
-                return null;
+                throw new NotFoundException($"No se encontró la orden con el número {orderId}.");
             }
+
 
             var response = new OrderDetailsResponse
             {

@@ -3,7 +3,7 @@ using Application.Exceptions;
 using Application.Interfaces.ICategory;
 using Application.Interfaces.IDish;
 using Application.Interfaces.IDish.IDishServices;
-using Application.Models.Request;
+using Application.Models.Request.DishRequest;
 using Application.Models.Response;
 using Application.Models.Response.DishResponse;
 using Application.Services.DishServices;
@@ -28,15 +28,18 @@ namespace ProyectoRestaurante.Controllers
         private readonly IUpdateDishService _updateDishService;
         private readonly ICategoryExists _categoryExists;
         private readonly IDeleteDishService _deleteDishService;
+        private readonly IGetDishByIdService _getDishByIdService; 
 
 
-        public DishController(ICreateDishService createDishService, ISearchAsyncService searchAsyncService, IUpdateDishService updateDishService, ICategoryExists categoryExists, IDeleteDishService deleteDishService)
+        public DishController(ICreateDishService createDishService, ISearchAsyncService searchAsyncService, IUpdateDishService updateDishService, 
+            ICategoryExists categoryExists, IDeleteDishService deleteDishService, IGetDishByIdService getDishByIdService)
         {
             _createDishService = createDishService;
             _searchAsyncService = searchAsyncService;
             _updateDishService = updateDishService;
             _categoryExists = categoryExists;
             _deleteDishService = deleteDishService;
+            _getDishByIdService = getDishByIdService;
         }
 
         // POST
@@ -66,44 +69,21 @@ namespace ProyectoRestaurante.Controllers
         Description = "Objeto JSON que representa un nuevo plato a agregar al menú.",
         Required = true)][FromBody][Required]DishRequest dishRequest)
         {
-           
-            if (dishRequest == null)
-            {
-                return BadRequest(new ApiError("Required dish data."));
-            }
-            if (string.IsNullOrWhiteSpace(dishRequest.Name))
-            {
-                return BadRequest(new ApiError("Name is required"));
-            }
-            if (dishRequest.Category == 0)
-            {
-                return BadRequest(new ApiError("Category is required."));
-                
-            }
-            if (dishRequest.Price <= 0)
-            {
-                return BadRequest(new ApiError("Price must be greater than zero."));
-               
-            }
 
-            var categoryExists = await _categoryExists.CategoryExist(dishRequest.Category);
-            if (!categoryExists)
+            try
             {
-                return BadRequest(new ApiError($"Category with ID {dishRequest.Category} not found."));
+                var createdDish = await _createDishService.CreateDish(dishRequest);
+                return CreatedAtAction(nameof(Search), new { id = createdDish.id }, createdDish);
             }
-
-            //if (dishRequest.Category == 0 || dishRequest.Category >= 11)
-            //{
-            //    return BadRequest(new ApiError("No se ingreso una categoria valida"));
-            //}
-
-            var createdDish = await _createDishService.CreateDish(dishRequest);
-
-            if (createdDish == null)
+            catch (BadRequestException ex)
             {
-                return Conflict(new ApiError("A dish with this name already exists."));
+                return BadRequest(new ApiError(ex.Message));
             }
-            return CreatedAtAction(nameof(Search), new { id = createdDish.id }, createdDish);
+            catch (ConflictException ex)
+            {
+                return Conflict(new ApiError(ex.Message));
+            }
+            
 
         }
         // GET
@@ -134,21 +114,45 @@ namespace ProyectoRestaurante.Controllers
         Description = "Obtiene una lista de platos del menú con opciones de filtrado y ordenamiento.")]
 
         [ProducesResponseType(typeof(IEnumerable<DishResponse>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ApiError), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(ApiError), StatusCodes.Status404NotFound)]
 
         public async Task<IActionResult> Search([FromQuery] string? name, [FromQuery] int? category,[FromQuery] bool? onlyActive = null, [FromQuery] SortOrder? sortByPrice = SortOrder.ASC )
         {
-            
+
             var list = await _searchAsyncService.SearchAsync(name, category, onlyActive, sortByPrice);
-            if (list == null || !list.Any())
-            {
-                return BadRequest(new ApiError("No dishes found matching the criteria."));
-            }
-            
             return Ok(list);
         }
 
+        // GET
+        /// <summary>
+        /// Obtener plato por ID
+        /// </summary>
+        /// <remarks>
+        /// Obtiene los detalles completos de un plato específico.
+        /// 
+        /// **Casos de uso:**
+        /// - Ver detalles de un plato antes de agregarlo a la orden
+        /// - Mostrar información detallada en el menú
+        /// - Verificación de disponibilidad
+        /// 
+        /// </remarks>
+        [HttpGet("{id}")]
+        [SwaggerOperation(
+            Summary = "Obtener plato por ID",
+            Description = "Obtiene los detalles completos de un plato específico.")]
+        [ProducesResponseType(typeof(DishResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiError), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            try
+            {
+                var dish = await _getDishByIdService.GetDishById(id);
+                return Ok(dish);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new ApiError(ex.Message));
+            }
+        }
 
         // PUT
         /// <summary>
@@ -181,41 +185,45 @@ namespace ProyectoRestaurante.Controllers
         [ProducesResponseType(typeof(ApiError), StatusCodes.Status409Conflict)]
         public async Task<IActionResult> UpdateDish(Guid id, [FromBody] DishUpdateRequest dishRequest)
         {
-            if (dishRequest == null)
+            try
             {
-                return BadRequest(new ApiError("Required dish data."));
+                var updatedDish = await _updateDishService.UpdateDish(id, dishRequest);
+                return Ok(updatedDish);
             }
-            if (string.IsNullOrWhiteSpace(dishRequest.Name))
+            catch (BadRequestException ex)
             {
-                return BadRequest(new ApiError("Name is required."));
+                return BadRequest(new ApiError(ex.Message));
             }
-            if (dishRequest.Category == 0 )
+            catch (NotFoundException ex)
             {
-                return BadRequest(new ApiError("Category is required."));
+                return NotFound(new ApiError(ex.Message));
             }
-            if (dishRequest.Price <= 0)
+            catch (ConflictException ex)
             {
-                return BadRequest(new ApiError("Price must be greater than zero."));
-            }
-
-            var result = await _updateDishService.UpdateDish(id, dishRequest);
-            if (result.NotFound)
-            {
-                return NotFound(new ApiError($"Dish with ID {id} not found."));
+                return Conflict(new ApiError(ex.Message));
             }
 
-            if (result.NameConflict)
-            {
-                return Conflict(new ApiError($"A dish named '{dishRequest.Name}' already exists."));
-            }
-
-            return Ok(result.UpdatedDish);
         }
-
+        // DELETE
+        /// <summary>
+        /// Eliminar plato
+        /// </summary>
+        /// <remarks>
+        /// Elimina un plato del menú del restaurante.
+        /// 
+        /// **Importante:**
+        /// - Solo se pueden eliminar platos que no esten en ordenes activas
+        /// - Típicamente se recomienda desactivar (isActive=false) en lugar de eliminar
+        /// 
+        /// **Casos de error 409:**
+        /// - El plato está incluido en órdenes pendientes o en proceso
+        /// - El plato tiene dependencias que impiden su eliminación
+        /// 
+        /// </remarks>
         [HttpDelete("{id:guid}")]
         [ProducesResponseType(typeof(DishResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(ApiError), StatusCodes.Status404NotFound)] 
+        [ProducesResponseType(typeof(ApiError), StatusCodes.Status409Conflict)] 
         public async Task<IActionResult> DeleteDish(Guid id)
         {
             try
@@ -225,11 +233,11 @@ namespace ProyectoRestaurante.Controllers
             }
             catch (NotFoundException ex)
             {
-                return NotFound(new { message = ex.Message });
+                return NotFound(new ApiError(ex.Message));
             }
             catch (ConflictException ex)
             {
-                return Conflict(new { message = ex.Message });
+                return Conflict(new ApiError(ex.Message));
             }
         }
 

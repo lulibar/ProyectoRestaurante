@@ -40,7 +40,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IDishCommand, DishCommand>();
 builder.Services.AddScoped<IDishQuery, DishQuery>();
 builder.Services.AddScoped<ICreateDishService, CreateDishService>();
-builder.Services.AddScoped<IGetAllDishesAsyncService, GetAllDishesAsyncService>();
 builder.Services.AddScoped<IGetDishByIdService, GetDishByIdService>();
 builder.Services.AddScoped<ISearchAsyncService, SearchAsyncService>();
 builder.Services.AddScoped<IUpdateDishService, UpdateDishService>();

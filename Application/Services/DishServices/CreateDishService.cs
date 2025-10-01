@@ -1,15 +1,16 @@
-﻿ using Application.Interfaces.ICategory;
+﻿using Application.Interfaces.ICategory;
 using Application.Interfaces.IDish;
 using Application.Interfaces.IDish.IDishServices;
-using Application.Models.Request;
 using Application.Models.Response;
 using Application.Models.Response.DishResponse;
 using Domain.Entities;
+using Application.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Models.Request.DishRequest;
 
 namespace Application.Services.DishServices
 {
@@ -28,13 +29,26 @@ namespace Application.Services.DishServices
 
         public async Task<DishResponse?> CreateDish(DishRequest dishRequest)
         {
-			var existingDish = await _query.DishExists(dishRequest.Name);
+            if (dishRequest == null)
+                throw new BadRequestException("Los datos del plato son obligatorios.");
+            if (string.IsNullOrWhiteSpace(dishRequest.Name))
+                throw new BadRequestException("El nombre del plato es obligatorio.");
+            if (dishRequest.Category == 0)
+                throw new BadRequestException("La categoria es obligatoria.");
+            if (dishRequest.Price <= 0)
+                throw new BadRequestException("El precio debe ser mayor a cero.");
 
-			if (existingDish)
-			{
-				return null;
-			}
-			var category = await _categoryQuery.GetCategoryById(dishRequest.Category);
+            var category = await _categoryQuery.GetCategoryById(dishRequest.Category);
+            if (category == null)
+            {
+                throw new BadRequestException($"Categoria con ID {dishRequest.Category} no encontrada.");
+            }
+
+            var existingDish = await _query.DishExists(dishRequest.Name);
+            if (existingDish)
+            {
+                throw new ConflictException("Ya existe un plato con ese nombre");
+            }
 
 			var dish = new Dish
 			{

@@ -1,12 +1,14 @@
 ﻿using Application.Interfaces.IStatus;
 using Application.Interfaces.IStatus.IStatusServices;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace ProyectoRestaurante.Controllers
 {
-    [Route("api/v1/[controller]")]
     [ApiController]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
     public class StatusController : ControllerBase
     {
         private readonly IGetAllStatusesService _getAllStatusService;

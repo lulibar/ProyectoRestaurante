@@ -1,11 +1,13 @@
 ﻿using Application.Interfaces.IDeliveryType.IDeliveryTypeServices;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ProyectoRestaurante.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
     public class DeliveryTypeController : ControllerBase
     {
         private readonly IGetAllDeliveryTypesService _getAllDeliveryTypesService;

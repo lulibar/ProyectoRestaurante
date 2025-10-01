@@ -1,4 +1,5 @@
 ﻿using Application.Enums;
+using Application.Exceptions;
 using Application.Interfaces.IOrder;
 using Application.Interfaces.IOrder.IOrderService;
 using Application.Interfaces.IOrderItem;
@@ -26,22 +27,28 @@ namespace Application.Services.OrderServices
 
         public async Task<OrderUpdateResponse?> UpdateOrderItemStatus(long orderId, long itemId, OrderItemUpdateRequest request)
         {
+            if (!Enum.IsDefined(typeof(OrderStatus), request.status))
+            {
+                throw new BadRequestException($"El estado '{request.status}' no es un estado válido.");
+            }
+
             var order = await _orderQuery.GetOrderByIdDetails(orderId);
             if (order == null)
             {
-                return null;
+                throw new NotFoundException($"Orden con ID {orderId} no encontrada.");
             }
 
             var orderItem = order.OrderItems.FirstOrDefault(item => item.OrderItemId == itemId);
             if (orderItem == null)
             {
-                return null;
+                throw new NotFoundException($"Ítem con ID {itemId} no encontrado en la orden {orderId}.");
             }
 
             if (orderItem.StatusId >= (int)OrderStatus.Ready && request.status < orderItem.StatusId)
             {
-                return null;
+                throw new ConflictException("No se puede revertir el estado de un ítem que ya está 'Listo' o en un estado posterior.");
             }
+
 
             orderItem.StatusId = request.status;
 
@@ -52,7 +59,6 @@ namespace Application.Services.OrderServices
             }
 
             order.UpdateDate = DateTime.UtcNow;
-
             await _orderCommand.UpdateOrder(order);
 
             return new OrderUpdateResponse
