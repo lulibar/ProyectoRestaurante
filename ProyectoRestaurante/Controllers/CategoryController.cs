@@ -17,6 +17,19 @@ namespace ProyectoRestaurante.Controllers
             _getAllCategoriesService = getAllCategoriesService; 
         }
 
+        // GET
+        /// <summary>
+        /// Obtener categorías de platos
+        /// </summary>
+        /// <remarks>
+        /// Obtiene todas las categorías disponibles para clasificar platos.
+        /// 
+        /// **Casos de uso:**
+        /// - Mostrar categorías en formularios de creación/edición de platos
+        /// - Filtros de búsqueda en el menú
+        /// - Organización del menú por secciones
+        /// 
+        ///</remarks>
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {

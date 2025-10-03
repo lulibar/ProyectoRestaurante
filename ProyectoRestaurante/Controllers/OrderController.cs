@@ -97,14 +97,14 @@ namespace ProyectoRestaurante.Controllers
         /// Obtiene una lista de órdenes con filtros opcionales.
         /// 
         /// **Filtros disponibles:**
-        ///- Por rango de fechas(desde/hasta)
-        ///- Por estado de la orden
+        /// - Por rango de fechas(desde/hasta)
+        /// - Por estado de la orden
         ///
-        /// ** Casos de uso:**
-        ///- Ver órdenes del día para cocina
-        ///- Historial de órdenes del cliente
-        ///- Reportes de ventas por período
-        ///- Seguimiento de órdenes pendientes
+        /// **Casos de uso:**
+        /// - Ver órdenes del día para cocina
+        /// - Historial de órdenes del cliente
+        /// - Reportes de ventas por período
+        /// - Seguimiento de órdenes pendientes
         ///</remarks>
 
         [HttpGet]
@@ -184,15 +184,15 @@ namespace ProyectoRestaurante.Controllers
         /// Obtiene los detalles completos de una orden específica.
         /// 
         /// **Información incluida:**
-        ///- Detalles de la orden (número, total, estado)
-        ///- Información de entrega
-        ///- Lista completa de items con sus estados individuales
-        ///- Información de cada plato incluido
+        /// - Detalles de la orden (número, total, estado)
+        /// - Información de entrega
+        /// - Lista completa de items con sus estados individuales
+        /// - Información de cada plato incluido
         ///
-        /// ** Casos de uso:**
-        ///- Seguimiento de orden por parte del cliente
-        ///- Detalles para cocina y entrega
-        ///- Historial detallado de órdenes
+        /// **Casos de uso:**
+        /// - Seguimiento de orden por parte del cliente
+        /// - Detalles para cocina y entrega
+        /// - Historial detallado de órdenes
         ///</remarks>
 
         [HttpGet("{id}")]
@@ -229,12 +229,12 @@ namespace ProyectoRestaurante.Controllers
         ///- Cocina marca un plato como "Listo"  
         ///- Cancelar un item específico si no se puede preparar
         ///
-        /// ** Flujo de estados típico:**
-        ///1. Pendiente → En preparación(cocina comienza)
-        ///2. En preparación → Listo(plato terminado)
-        ///3. Listo → Entregado(entregado al cliente)
+        /// **Flujo de estados típico:**
+        /// 1. Pendiente → En preparación(cocina comienza)
+        /// 2. En preparación → Listo(plato terminado)
+        /// 3. Listo → Entregado(entregado al cliente)
         ///
-        ///**Nota:** El estado de la orden general se actualiza automáticamente basado en el estado de todos sus items.
+        /// **Nota:** El estado de la orden general se actualiza automáticamente basado en el estado de todos sus items.
         /// 
         ///</remarks>
         ///

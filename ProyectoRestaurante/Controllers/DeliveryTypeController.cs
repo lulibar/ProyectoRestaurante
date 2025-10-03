@@ -17,6 +17,20 @@ namespace ProyectoRestaurante.Controllers
             _getAllDeliveryTypesService = getAllDeliveryTypesService;
         }
 
+        // GET
+        /// <summary>
+        /// Obtener tipos de entrega
+        /// </summary>
+        /// <remarks>
+        /// Obtiene todos los tipos de entrega disponibles para las órdenes.
+        /// 
+        /// **Casos de uso:**
+        /// - Mostrar opciones de entrega al cliente durante el pedido
+        /// - Configurar diferentes métodos de entrega
+        /// - Calcular costos de envío según el tipo
+        /// 
+        ///</remarks>
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {

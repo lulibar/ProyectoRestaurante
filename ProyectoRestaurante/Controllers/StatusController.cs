@@ -18,6 +18,21 @@ namespace ProyectoRestaurante.Controllers
             _getAllStatusService = getAllStatusService;
         }
 
+        // GET
+        /// <summary>
+        /// Obtener estados de órdenes
+        /// </summary>
+        /// <remarks>
+        /// Obtiene todos los estados posibles para las órdenes y sus items.
+        /// 
+        /// **Estados típicos:**
+        /// - Pendiente: orden recién creada
+        /// - En preparación: cocina comenzó a preparar
+        /// - Listo: orden lista para entregar
+        /// - Entregado: orden completada
+        /// - Cancelado: orden cancelada
+        /// 
+        ///</remarks>
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
