@@ -9,8 +9,6 @@ namespace Application.Models.Request.OrdersRequest
 {
     public class OrderRequest
     {
-        [Required(ErrorMessage = "La orden debe contener al menos un ítem.")]
-        [MinLength(1, ErrorMessage = "La orden debe contener al menos un ítem.")]
         public List<Items>? items { get; set; }
 
         [Required(ErrorMessage = "Los datos de entrega son requeridos.")]
